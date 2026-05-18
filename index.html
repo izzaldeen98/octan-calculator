@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Octan Calculator</title>
+  <style>
+    :root {
+      --bg: #090f1f;
+      --bg-2: #101a34;
+      --card: #111d35cc;
+      --card-strong: #13233f;
+      --border: #2a3b60;
+      --text: #eaf0ff;
+      --muted: #9eb1d9;
+      --accent: #8b5cf6;
+      --accent-strong: #6d44d8;
+      --accent-95: #f59e0b;
+      --accent-90: #3b82f6;
+      --accent-blend: #10b981;
+      --danger: #fb7185;
+      --shadow: 0 18px 60px rgba(8, 15, 35, 0.45);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.25rem;
+      background:
+        radial-gradient(circle at 10% -20%, #273d73 0%, transparent 50%),
+        radial-gradient(circle at 90% 120%, #15466a 0%, transparent 42%),
+        linear-gradient(165deg, var(--bg), var(--bg-2));
+      display: grid;
+      place-items: center;
+    }
+
+    html[lang="ar"] body {
+      font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif;
+    }
+
+    .app {
+      width: min(100%, 760px);
+      background: var(--card);
+      border: 1px solid color-mix(in srgb, var(--border), white 8%);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1rem 0.6rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #22d3ee);
+      box-shadow: 0 0 12px #22d3eeaa;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      padding: 0.2rem;
+      border-radius: 999px;
+      background: #0c1730;
+      border: 1px solid var(--border);
+    }
+
+    .lang-btn {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.4rem 0.95rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    .lang-btn.active {
+      color: var(--text);
+      background: color-mix(in srgb, var(--accent), black 10%);
+      box-shadow: 0 6px 20px #5b21b655;
+    }
+
+    .content {
+      padding: 1rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .hero {
+      background: linear-gradient(170deg, #16294f, #0f1f3d);
+      border: 1px solid #29437b;
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      max-width: 65ch;
+    }
+
+    .price-strip {
+      margin-top: 0.35rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      border-radius: 999px;
+      padding: 0.3rem 0.65rem;
+      border: 1px solid #335083;
+      background: #0f1e3a;
+      color: var(--muted);
+    }
+
+    .pill strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .card {
+      background: var(--card-strong);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .field-label {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .unit-tag {
+      position: absolute;
+      inset-inline-end: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.78rem;
+      pointer-events: none;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      height: 46px;
+      padding: 0.75rem 3.4rem 0.75rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid #334f82;
+      background: #0b1832;
+      color: var(--text);
+      font-size: 1.04rem;
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    html[dir="rtl"] input[type="number"] {
+      text-align: right;
+      padding: 0.75rem 0.85rem 0.75rem 3.4rem;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px #8b5cf633;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.55rem;
+    }
+
+    .btn {
+      height: 46px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      font-size: 0.93rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 1rem;
+      transition: 150ms ease;
+      white-space: nowrap;
+    }
+
+    .btn.primary {
+      flex: 1;
+      color: white;
+      background: linear-gradient(140deg, var(--accent), var(--accent-strong));
+      box-shadow: 0 8px 24px #6d44d844;
+    }
+
+    .btn.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px #6d44d866;
+    }
+
+    .btn.secondary {
+      color: var(--muted);
+      border-color: #345385;
+      background: #0b1832;
+      min-width: 92px;
+    }
+
+    .btn.secondary:hover {
+      color: var(--text);
+      border-color: #46679f;
+    }
+
+    .error {
+      display: none;
+      color: var(--danger);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .error.visible {
+      display: block;
+    }
+
+    .results {
+      display: none;
+      gap: 0.7rem;
+    }
+
+    .results.visible {
+      display: grid;
+    }
+
+    .results-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .results-head h2 {
+      font-size: 0.84rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    html[lang="ar"] .results-head h2 {
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .badge {
+      font-size: 0.73rem;
+      color: #b7c7ea;
+      background: #0b1932;
+      border: 1px solid #335083;
+      border-radius: 999px;
+      padding: 0.28rem 0.55rem;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .result-item {
+      background: #0c1931;
+      border: 1px solid #2e4673;
+      border-radius: 12px;
+      padding: 0.72rem 0.8rem;
+      display: grid;
+      gap: 0.22rem;
+      min-height: 74px;
+    }
+
+    .result-item .label {
+      color: var(--muted);
+      font-size: 0.79rem;
+    }
+
+    .result-item .value {
+      font-size: 1.02rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .tone-95 .value { color: var(--accent-95); }
+    .tone-90 .value { color: var(--accent-90); }
+    .tone-blend .value { color: var(--accent-blend); }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 640px) {
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span id="brand-label">Fuel Blend</span>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button class="lang-btn active" type="button" id="lang-en" aria-pressed="true">EN</button>
+        <button class="lang-btn" type="button" id="lang-ar" aria-pressed="false">عربي</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="hero" aria-labelledby="title">
+        <h1 id="title">Octan Calculator</h1>
+        <p id="subtitle">Calculate your fuel mix instantly.</p>
+        <div class="price-strip">
+          <span class="pill"><span id="price-95-label">Octan 95</span>: <strong id="price-95-value">1.31</strong></span>
+          <span class="pill"><span id="price-90-label">Octan 90</span>: <strong id="price-90-value">1.00</strong></span>
+          <span class="pill"><span id="today-label">Today</span>: <strong id="today-date">—</strong></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <label class="field-label" for="dinars" id="label-dinars">Total amount</label>
+        <div class="input-row">
+          <div class="input-wrap">
+            <input
+              type="number"
+              id="dinars"
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              placeholder="e.g. 50"
+              autocomplete="off"
+              autofocus
+            >
+            <span class="unit-tag" id="dinars-unit-tag">dinars</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" type="button" id="calculate">Calculate</button>
+          <button class="btn secondary" type="button" id="clear">Clear</button>
+        </div>
+
+        <p class="error" id="error" role="alert">Please enter a valid amount greater than zero.</p>
+
+        <section class="results" id="results" aria-live="polite">
+          <div class="results-head">
+            <h2 id="results-heading">Results</h2>
+            <span class="badge" id="results-badge">Instant</span>
+          </div>
+          <div class="result-grid">
+            <div class="result-item tone-95">
+              <span class="label" id="label-liters-95">Octan 95 liters</span>
+              <span class="value" id="liters-95">—</span>
+            </div>
+            <div class="result-item tone-90">
+              <span class="label" id="label-liters-90">Octan 90 liters</span>
+              <span class="value" id="liters-90">—</span>
+            </div>
+            <div class="result-item">
+              <span class="label" id="label-total-dinars">Total dinars</span>
+              <span class="value" id="total-dinars">—</span>
+            </div>
+            <div class="result-item tone-95">
+              <span class="label" id="label-cost-95">Octan 95 cost</span>
+              <span class="value" id="cost-95">—</span>
+            </div>
+            <div class="result-item tone-90">
+              <span class="label" id="label-cost-90">Octan 90 cost</span>
+              <span class="value" id="cost-90">—</span>
+            </div>
+            <div class="result-item tone-blend">
+              <span class="label" id="label-octan-pct">Blended octan rating</span>
+              <span class="value" id="octan-pct">—</span>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const DEFAULT_OCTAN_95_PRICE = 1.31;
+    const DEFAULT_OCTAN_90_PRICE = 1.00;
+    const OCTAN_RATIO_90_TO_95 = 1.5;
+    const LANG_STORAGE_KEY = "octan-lang";
+    const FUEL_PRICES_API_URL = "https://www.nshamah.com/api/fuel-prices";
+
+    const i18n = {
+      en: {
+        brand: "Fuel Blend",
+        title: "Octan Calculator",
+        subtitle: "Calculate your fuel mix instantly.",
+        labelDinars: "Total amount",
+        placeholder: "e.g. 50",
+        calculate: "Calculate",
+        clear: "Clear",
+        error: "Please enter a valid amount greater than zero.",
+        results: "Results",
+        resultsBadge: "Instant",
+        liters95: "Octan 95 liters",
+        liters90: "Octan 90 liters",
+        totalDinars: "Total dinars",
+        cost95: "Octan 95 cost",
+        cost90: "Octan 90 cost",
+        octanPct: "Blended octan rating",
+        price95Label: "Octan 95",
+        price90Label: "Octan 90",
+        todayLabel: "Today",
+        dinarsUnit: "dinars",
+        litersUnit: "L",
+      },
+      ar: {
+        brand: "خلطة الوقود",
+        title: "حاسبة الأوكتان",
+        subtitle: "احسب خليط الوقود بسرعة.",
+        labelDinars: "المبلغ الإجمالي",
+        placeholder: "مثال: 50",
+        calculate: "احسب",
+        clear: "مسح",
+        error: "الرجاء إدخال مبلغ صالح أكبر من صفر.",
+        results: "النتائج",
+        resultsBadge: "فوري",
+        liters95: "لترات أوكتان 95",
+        liters90: "لترات أوكتان 90",
+        totalDinars: "إجمالي الدنانير",
+        cost95: "تكلفة أوكتان 95",
+        cost90: "تكلفة أوكتان 90",
+        octanPct: "نسبة الأوكتان المختلطة",
+        price95Label: "أوكتان 95",
+        price90Label: "أوكتان 90",
+        todayLabel: "اليوم",
+        dinarsUnit: "دينار",
+        litersUnit: "ل",
+      },
+    };
+
+    const state = {
+      lang: "en",
+      lastResult: null,
+      prices: {
+        benzine95: DEFAULT_OCTAN_95_PRICE,
+        benzine90: DEFAULT_OCTAN_90_PRICE,
+      },
+      pricesSource: "fallback",
+    };
+
+    const refs = {
+      title: document.getElementById("title"),
+      subtitle: document.getElementById("subtitle"),
+      brandLabel: document.getElementById("brand-label"),
+      labelDinars: document.getElementById("label-dinars"),
+      dinarsInput: document.getElementById("dinars"),
+      dinarsUnitTag: document.getElementById("dinars-unit-tag"),
+      calculateBtn: document.getElementById("calculate"),
+      clearBtn: document.getElementById("clear"),
+      error: document.getElementById("error"),
+      results: document.getElementById("results"),
+      resultsHeading: document.getElementById("results-heading"),
+      resultsBadge: document.getElementById("results-badge"),
+      todayLabel: document.getElementById("today-label"),
+      todayDate: document.getElementById("today-date"),
+      labelLiters95: document.getElementById("label-liters-95"),
+      labelLiters90: document.getElementById("label-liters-90"),
+      labelTotalDinars: document.getElementById("label-total-dinars"),
+      labelCost95: document.getElementById("label-cost-95"),
+      labelCost90: document.getElementById("label-cost-90"),
+      labelOctanPct: document.getElementById("label-octan-pct"),
+      liters95: document.getElementById("liters-95"),
+      liters90: document.getElementById("liters-90"),
+      totalDinars: document.getElementById("total-dinars"),
+      cost95: document.getElementById("cost-95"),
+      cost90: document.getElementById("cost-90"),
+      octanPct: document.getElementById("octan-pct"),
+      price95Label: document.getElementById("price-95-label"),
+      price90Label: document.getElementById("price-90-label"),
+      price95Value: document.getElementById("price-95-value"),
+      price90Value: document.getElementById("price-90-value"),
+      langEnBtn: document.getElementById("lang-en"),
+      langArBtn: document.getElementById("lang-ar"),
+    };
+
+    function t(key) {
+      return i18n[state.lang][key];
+    }
+
+    function nf(maximumFractionDigits = 2) {
+      return new Intl.NumberFormat(state.lang === "ar" ? "ar-JO" : "en-US", {
+        maximumFractionDigits,
+        minimumFractionDigits: 0,
+      });
+    }
+
+    function formatNumber(value, digits = 2) {
+      return nf(digits).format(value);
+    }
+
+    function formatTodayDate() {
+      const locale = state.lang === "ar" ? "ar-JO" : "en-US";
+      return new Intl.DateTimeFormat(locale, { dateStyle: "full" }).format(new Date());
+    }
+
+    function price95() {
+      return state.prices.benzine95;
+    }
+
+    function price90() {
+      return state.prices.benzine90;
+    }
+
+    function setLanguage(nextLang) {
+      state.lang = nextLang in i18n ? nextLang : "en";
+      localStorage.setItem(LANG_STORAGE_KEY, state.lang);
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      const isArabic = state.lang === "ar";
+      document.documentElement.lang = state.lang;
+      document.documentElement.dir = isArabic ? "rtl" : "ltr";
+      document.title = t("title");
+
+      refs.brandLabel.textContent = t("brand");
+      refs.title.textContent = t("title");
+      refs.subtitle.textContent = t("subtitle");
+      refs.labelDinars.textContent = t("labelDinars");
+      refs.dinarsInput.placeholder = t("placeholder");
+      refs.dinarsUnitTag.textContent = t("dinarsUnit");
+      refs.calculateBtn.textContent = t("calculate");
+      refs.clearBtn.textContent = t("clear");
+      refs.error.textContent = t("error");
+      refs.resultsHeading.textContent = t("results");
+      refs.resultsBadge.textContent = t("resultsBadge");
+      refs.labelLiters95.textContent = t("liters95");
+      refs.labelLiters90.textContent = t("liters90");
+      refs.labelTotalDinars.textContent = t("totalDinars");
+      refs.labelCost95.textContent = t("cost95");
+      refs.labelCost90.textContent = t("cost90");
+      refs.labelOctanPct.textContent = t("octanPct");
+      refs.price95Label.textContent = t("price95Label");
+      refs.price90Label.textContent = t("price90Label");
+      refs.todayLabel.textContent = t("todayLabel");
+      refs.todayDate.textContent = formatTodayDate();
+      refs.price95Value.textContent = formatNumber(price95(), 2);
+      refs.price90Value.textContent = formatNumber(price90(), 2);
+
+      refs.langEnBtn.classList.toggle("active", !isArabic);
+      refs.langArBtn.classList.toggle("active", isArabic);
+      refs.langEnBtn.setAttribute("aria-pressed", String(!isArabic));
+      refs.langArBtn.setAttribute("aria-pressed", String(isArabic));
+
+      if (state.lastResult) renderResults(state.lastResult);
+    }
+
+    function showError() {
+      refs.results.classList.remove("visible");
+      refs.error.classList.add("visible");
+    }
+
+    function clearError() {
+      refs.error.classList.remove("visible");
+    }
+
+    function calculateBlend(totalDinars) {
+      const octan95Liters = totalDinars / (OCTAN_RATIO_90_TO_95 * price90() + price95());
+      const octan90Liters = octan95Liters * OCTAN_RATIO_90_TO_95;
+      const octanPercentage = (0.95 * octan95Liters + 0.9 * octan90Liters) / (octan95Liters + octan90Liters);
+
+      return { totalDinars, octan95Liters, octan90Liters, octanPercentage };
+    }
+
+    function renderResults(data) {
+      refs.liters95.textContent = `${formatNumber(data.octan95Liters, 2)} ${t("litersUnit")}`;
+      refs.liters90.textContent = `${formatNumber(data.octan90Liters, 2)} ${t("litersUnit")}`;
+      refs.totalDinars.textContent = `${formatNumber(data.totalDinars, 2)} ${t("dinarsUnit")}`;
+      refs.cost95.textContent = `${formatNumber(price95() * data.octan95Liters, 2)} ${t("dinarsUnit")}`;
+      refs.cost90.textContent = `${formatNumber(price90() * data.octan90Liters, 2)} ${t("dinarsUnit")}`;
+      refs.octanPct.textContent = formatNumber(data.octanPercentage, 6);
+      refs.results.classList.add("visible");
+    }
+
+    async function loadFuelPricesFromApi() {
+      try {
+        const response = await fetch(FUEL_PRICES_API_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const payload = await response.json();
+        const list = payload?.data?.prices;
+        if (!Array.isArray(list)) throw new Error("Unexpected API response");
+
+        const apiPrices = {};
+        for (const item of list) {
+          if (item?.type === "benzine90" || item?.type === "benzine95") {
+            const parsedPrice = Number(item.price);
+            if (Number.isFinite(parsedPrice) && parsedPrice > 0) {
+              apiPrices[item.type] = parsedPrice;
+            }
+          }
+        }
+
+        if (!apiPrices.benzine90 || !apiPrices.benzine95) {
+          throw new Error("Missing required fuel prices");
+        }
+
+        state.prices = apiPrices;
+        state.pricesSource = "api";
+      } catch (_error) {
+        state.prices = {
+          benzine95: DEFAULT_OCTAN_95_PRICE,
+          benzine90: DEFAULT_OCTAN_90_PRICE,
+        };
+        state.pricesSource = "fallback";
+      }
+
+      applyLanguage();
+      if (state.lastResult) renderResults(state.lastResult);
+    }
+
+    function onCalculate() {
+      const totalDinars = Number(refs.dinarsInput.value);
+
+      if (!Number.isFinite(totalDinars) || totalDinars <= 0) {
+        state.lastResult = null;
+        showError();
+        return;
+      }
+
+      clearError();
+      state.lastResult = calculateBlend(totalDinars);
+      renderResults(state.lastResult);
+    }
+
+    function onClear() {
+      refs.dinarsInput.value = "";
+      state.lastResult = null;
+      clearError();
+      refs.results.classList.remove("visible");
+      refs.dinarsInput.focus();
+    }
+
+    refs.langEnBtn.addEventListener("click", () => setLanguage("en"));
+    refs.langArBtn.addEventListener("click", () => setLanguage("ar"));
+    refs.calculateBtn.addEventListener("click", onCalculate);
+    refs.clearBtn.addEventListener("click", onClear);
+
+    refs.dinarsInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") onCalculate();
+    });
+
+    refs.dinarsInput.addEventListener("input", () => {
+      if (refs.error.classList.contains("visible")) {
+        clearError();
+      }
+    });
+
+    state.lang = localStorage.getItem(LANG_STORAGE_KEY) || "en";
+    applyLanguage();
+    loadFuelPricesFromApi();
+  </script>
+</body>
+</html>
