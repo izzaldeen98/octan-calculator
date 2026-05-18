@@ -41,12 +41,28 @@
         radial-gradient(circle at 10% -20%, #273d73 0%, transparent 50%),
         radial-gradient(circle at 90% 120%, #15466a 0%, transparent 42%),
         linear-gradient(165deg, var(--bg), var(--bg-2));
-      display: grid;
-      place-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1rem;
     }
 
     html[lang="ar"] body {
       font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", Arial, sans-serif;
+    }
+
+    .top-ad {
+      width: min(100%, 760px);
+      min-height: 90px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .top-ad .adsbygoogle {
+      display: block;
+      width: 100%;
+      min-height: 90px;
     }
 
     .app {
@@ -370,6 +386,19 @@
   </style>
 </head>
 <body>
+  <!-- header_ad -->
+  <div class="top-ad">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3642289796133125"
+         data-ad-slot="8660486580"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+  </div>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+
   <main class="app">
     <div class="topbar">
       <div class="brand">
@@ -386,16 +415,6 @@
       <section class="hero" aria-labelledby="title">
         <h1 id="title">Octan Calculator</h1>
         <p id="subtitle">Calculate your fuel mix instantly.</p>
-        <!-- header_ad -->
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-3642289796133125"
-             data-ad-slot="8660486580"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
         <div class="price-strip">
           <span class="pill"><span id="price-95-label">Octan 95</span>: <strong id="price-95-value">1.31</strong></span>
           <span class="pill"><span id="price-90-label">Octan 90</span>: <strong id="price-90-value">1.00</strong></span>
